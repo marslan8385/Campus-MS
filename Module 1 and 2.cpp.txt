@@ -1,0 +1,288 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person
+{
+protected:
+    string name;
+    string CNIC;
+    int age;
+    string contact;
+
+public:
+    virtual void getdata()
+    {
+        cout << "Name: ";
+        cin >> name;
+        cout << "CNIC: ";
+        cin >> CNIC;
+        cout << "Age: ";
+        cin >> age;
+        cout << "Contact: ";
+        cin >> contact;
+    }
+
+    virtual void displayInfo() = 0;
+};
+
+class CapacityExceededException
+{
+public:
+    void showError()
+    {
+        cout << "ERROR: Maximum course capacity reached!\n";
+    }
+};
+
+class Course
+{
+private:
+    string courseCode;
+    string courseName;
+    int creditHours;
+    int maxCapacity;
+    int enrolledCount;
+
+    Person* enrolledStudents[50];
+
+public:
+    Course()
+    {
+        maxCapacity = 0;
+        enrolledCount = 0;
+    }
+
+    void getdata()
+    {
+        cout << "Course Code: ";
+        cin >> courseCode;
+        cout << "Course Name: ";
+        cin >> courseName;
+        cout << "Credit Hours: ";
+        cin >> creditHours;
+        cout << "Max Capacity: ";
+        cin >> maxCapacity;
+    }
+
+    string getCourseCode()
+    {
+        return courseCode;
+    }
+
+    bool operator==(Course &c)
+    {
+        return courseCode == c.courseCode;
+    }
+
+    void enroll(Person* p)
+    {
+        if (enrolledCount >= maxCapacity)
+        {
+            throw CapacityExceededException();
+        }
+        enrolledStudents[enrolledCount++] = p;
+    }
+
+    friend ostream& operator<<(ostream& out, Course &c)
+    {
+        out << "\nCourse Code: " << c.courseCode;
+        out << "\nCourse Name: " << c.courseName;
+        out << "\nCredit Hours: " << c.creditHours;
+        out << "\nCapacity: " << c.maxCapacity;
+        out << "\nEnrolled: " << c.enrolledCount << endl;
+        return out;
+    }
+};
+
+class Student : public Person
+{
+private:
+    string rollNo;
+    int semester;
+    float GPA;
+
+    Course courses[3];
+
+public:
+    void getdata() override
+    {
+        cout << "\n--- Student Data ---\n";
+        Person::getdata();
+        cout << "Roll No: ";
+        cin >> rollNo;
+        cout << "Semester: ";
+        cin >> semester;
+        cout << "GPA: ";
+        cin >> GPA;
+        for (int i = 0; i < 3; i++)
+        {
+            cout << "\nCourse " << i + 1 << ":\n";
+            courses[i].getdata();
+        }
+    }
+
+    void calculateGrade()
+    {
+        if (GPA >= 3.7)
+            cout << "Grade: A\n";
+        else if (GPA >= 3.3)
+            cout << "Grade: B\n";
+        else if (GPA >= 3.0)
+            cout << "Grade: C\n";
+        else if (GPA >= 2.0)
+            cout << "Grade: D\n";
+        else
+            cout << "Grade: F\n";
+    }
+
+    void displayInfo() override
+    {
+        cout << "\n----- Student Info -----\n";
+        cout << "Name: " << name << endl;
+        cout << "CNIC: " << CNIC << endl;
+        cout << "Age: " << age << endl;
+        cout << "Contact: " << contact << endl;
+        cout << "Roll No: " << rollNo << endl;
+        cout << "Semester: " << semester << endl;
+        cout << "GPA: " << GPA << endl;
+
+        for (int i = 0; i < 3; i++)
+        {
+            cout << "\nCourse " << i + 1 << ":";
+            cout << courses[i];
+        }
+
+        calculateGrade();
+    }
+};
+
+class Faculty : public Person
+{
+private:
+    int employeeID;
+    string department;
+    string designation;
+    string assignedCourses[2];
+
+public:
+    void getdata() override
+    {
+        cout << "\n--- Faculty Data ---\n";
+        Person::getdata();
+        cout << "Employee ID: ";
+        cin >> employeeID;
+        cout << "Department: ";
+        cin >> department;
+        cout << "Designation: ";
+        cin >> designation;
+        for (int i = 0; i < 2; i++)
+        {
+            cout << "Assigned Course " << i + 1 << ": ";
+            cin >> assignedCourses[i];
+        }
+    }
+
+    void displayInfo() override
+    {
+        cout << "\n----- Faculty Info -----\n";
+        cout << "Name: " << name << endl;
+        cout << "Department: " << department << endl;
+        cout << "Designation: " << designation << endl;
+        cout << "Courses: ";
+        for (int i = 0; i < 2; i++)
+            cout << assignedCourses[i] << " ";
+        cout << endl;
+    }
+};
+
+class Staff : public Person
+{
+private:
+    int staffID;
+    string role;
+    double salary;
+
+public:
+    void getdata() override
+    {
+        cout << "\n--- Staff Data ---\n";
+        Person::getdata();
+        cout << "Staff ID: ";
+        cin >> staffID;
+        cout << "Role: ";
+        cin >> role;
+        cout << "Salary: ";
+        cin >> salary;
+    }
+
+    void displayInfo() override
+    {
+        cout << "\n----- Staff Info -----\n";
+        cout << "Name: " << name << endl;
+        cout << "Role: " << role << endl;
+        cout << "Salary: " << salary << endl;
+    }
+};
+
+int main()
+{
+    Student students[200];
+    Faculty faculty[30];
+    Staff staff[20];
+
+    int sCount = 0, fCount = 0, stCount = 0;
+    int choice;
+
+    do
+    {
+        cout << "\n===== CAMPUS SYSTEM =====\n";
+        cout << "1. Add Student\n";
+        cout << "2. Add Faculty\n";
+        cout << "3. Add Staff\n";
+        cout << "4. Display All\n";
+        cout << "0. Exit\n";
+        cout << "Choice: ";
+        cin >> choice;
+
+        system("cls");
+
+        switch (choice)
+        {
+        case 1:
+            if (sCount < 200)
+                students[sCount++].getdata();
+            else
+                cout << "Student limit reached!\n";
+            break;
+
+        case 2:
+            if (fCount < 30)
+                faculty[fCount++].getdata();
+            else
+                cout << "Faculty limit reached!\n";
+            break;
+
+        case 3:
+            if (stCount < 20)
+                staff[stCount++].getdata();
+            else
+                cout << "Staff limit reached!\n";
+            break;
+
+        case 4:
+            for (int i = 0; i < sCount; i++)
+                students[i].displayInfo();
+
+            for (int i = 0; i < fCount; i++)
+                faculty[i].displayInfo();
+
+            for (int i = 0; i < stCount; i++)
+                staff[i].displayInfo();
+            break;
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
