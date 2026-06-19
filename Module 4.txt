@@ -1,0 +1,233 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class FeeRecord
+{
+private:
+    string studentRef;
+    float semesterFee;
+    float hostelFee;
+    float libraryFine;
+    float totalPaid;
+    float balance;
+
+public:
+    FeeRecord()
+    {
+        semesterFee =0;
+        hostelFee =0;
+        libraryFine =0;
+        totalPaid =0;
+        balance = 0;
+    }
+
+    void setStudentRef(string r) { studentRef = r; }
+
+    void setFees(float s, float h, float f)
+    {
+        semesterFee = s;
+        hostelFee = h;
+        libraryFine = f;
+        balance = semesterFee + hostelFee + libraryFine;
+    }
+
+    string getStudentRef() { return studentRef; }
+    float getBalance() { return balance; }
+
+    FeeRecord& operator-=(float payment)
+    {
+        totalPaid += payment;
+        balance -= payment;
+
+        if (balance < 0)
+            balance = 0;
+
+        return *this;
+    }
+
+    void display()
+    {
+        cout << "\n----- Fee Record -----\n";
+        cout << "Student ID: " << studentRef << endl;
+        cout << "Semester Fee: " << semesterFee << endl;
+        cout << "Hostel Fee: " << hostelFee << endl;
+        cout << "Library Fine: " << libraryFine << endl;
+        cout << "Total Paid: " << totalPaid << endl;
+        cout << "Balance: " << balance << endl;
+    }
+};
+
+class Invoice
+{
+private:
+    int invoiceID;
+    string studentID;
+    string date;
+    float amount;
+
+    static int counter;
+
+public:
+    Invoice()
+    {
+        counter++;
+        invoiceID = counter;
+        amount = 0;
+    }
+
+    // ---------- SETTERS ----------
+    void setInvoice(string id, float amt, string d)
+    {
+        studentID = id;
+        amount = amt;
+        date = d;
+    }
+
+    // ---------- DISPLAY ----------
+    void display()
+    {
+        cout << "\n===== INVOICE =====\n";
+        cout << "Invoice ID: " << invoiceID << endl;
+        cout << "Student ID: " << studentID << endl;
+        cout << "Date: " << date << endl;
+        cout << "Amount: " << amount << endl;
+    }
+
+    ~Invoice()
+    {
+        cout << "Invoice " << invoiceID << " destroyed.\n";
+    }
+};
+
+int Invoice::counter = 0;
+
+class FeeSystem
+{
+private:
+    FeeRecord records[100];
+    Invoice invoices[100];
+    int rCount;
+    int iCount;
+
+public:
+    FeeSystem()
+    {
+        rCount = 0;
+        iCount = 0;
+    }
+
+    void addRecord()
+    {
+        string id;
+        float s, h, f;
+        cout << "Enter Student ID: ";
+        cin >> id;
+        cout << "Enter Semester Fee: ";
+        cin >> s;
+        cout << "Enter Hostel Fee: ";
+        cin >> h;
+        cout << "Enter Library Fine: ";
+        cin >> f;
+        records[rCount].setStudentRef(id);
+        records[rCount].setFees(s, h, f);
+        rCount++;
+        cout << "Record Added Successfully!\n";
+    }
+
+    void showRecords()
+    {
+        for (int i = 0; i < rCount; i++)
+            records[i].display();
+    }
+
+    void payFee()
+    {
+        string id;
+        float pay;
+
+        cout << "Enter Student ID: ";
+        cin >> id;
+        cout << "Enter Payment: ";
+        cin >> pay;
+
+        for (int i = 0; i < rCount; i++)
+        {
+            if (records[i].getStudentRef() == id)
+            {
+                records[i] -= pay;
+                cout << "Payment Successful!\n";
+                return;
+            }
+        }
+
+        cout << "Student not found!\n";
+    }
+
+    void generateInvoice()
+    {
+        string id, date;
+        float amount;
+        cout << "Enter Student ID: ";
+        cin >> id;
+        cout << "Enter Amount: ";
+        cin >> amount;
+        cout << "Enter Date: ";
+        cin >> date;
+        invoices[iCount].setInvoice(id, amt, date);
+        iCount++;
+
+        cout << "Invoice Created!\n";
+    }
+
+    void showInvoices()
+    {
+        for (int i = 0; i < iCount; i++)
+            invoices[i].display();
+    }
+};
+
+int main()
+{
+    FeeSystem system;
+    int choice;
+
+    do
+    {
+        cout << "\n===== FEE MANAGEMENT SYSTEM =====\n";
+        cout << "1. Add Fee Record\n";
+        cout << "2. View Fee Records\n";
+        cout << "3. Pay Fee\n";
+        cout << "4. Generate Invoice\n";
+        cout << "5. View Invoices\n";
+        cout << "0. Exit\n";
+        cout << "Enter Choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            system.addRecord();
+            break;
+
+        case 2:
+            system.showRecords();
+            break;
+
+        case 3:
+            system.payFee();
+            break;
+
+        case 4:
+            system.generateInvoice();
+            break;
+
+        case 5:
+            system.showInvoices();
+            break;
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
