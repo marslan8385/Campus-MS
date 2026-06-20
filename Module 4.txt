@@ -19,7 +19,7 @@ public:
         hostelFee =0;
         libraryFine =0;
         totalPaid =0;
-        balance = 0;
+        balance =0;
     }
 
     void setStudentRef(string r) { studentRef = r; }
@@ -73,10 +73,10 @@ public:
     {
         counter++;
         invoiceID = counter;
-        amount = 0;
+        amount =0;
     }
 
-    // ---------- SETTERS ----------
+    
     void setInvoice(string id, float amt, string d)
     {
         studentID = id;
@@ -84,7 +84,7 @@ public:
         date = d;
     }
 
-    // ---------- DISPLAY ----------
+    
     void display()
     {
         cout << "\n===== INVOICE =====\n";
@@ -174,7 +174,7 @@ public:
         cin >> amount;
         cout << "Enter Date: ";
         cin >> date;
-        invoices[iCount].setInvoice(id, amt, date);
+        invoices[iCount].setInvoice(id, amount, date);
         iCount++;
 
         cout << "Invoice Created!\n";
