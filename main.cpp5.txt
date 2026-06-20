@@ -1,0 +1,375 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Student
+{
+private:
+    string rollNo;
+    string name;
+
+public:
+    void setRollNo(string r)
+    {
+        rollNo = r;
+    }
+
+    void setName(string n)
+    {
+        name = n;
+    }
+    string getRollNo()
+    {
+        return rollNo;
+    }
+
+    string getName()
+    {
+        return name;
+    }
+    void display()
+    {
+        cout << "Roll No : " << rollNo << endl;
+        cout << "Name    : " << name << endl;
+    }
+};
+
+class Accommodation
+{
+public:
+    virtual void allocateRoom() = 0;
+    virtual void vacateRoom() = 0;
+};
+
+class Reportable
+{
+public:
+    virtual void generateReport() = 0;
+};
+
+class Room
+{
+private:
+    int roomNumber;
+    string type;
+    int floor;
+
+    Student* occupants[3];
+    int occupantCount;
+
+public:
+    Room()
+    {
+        roomNumber = 0;
+        type = "";
+        floor = 0;
+        occupantCount = 0;
+
+        for (int i = 0; i < 3; i++)
+            occupants[i] = NULL;
+    }
+
+    void setRoomNumber(int r)
+    {
+        roomNumber = r;
+    }
+
+    void setType(string t)
+    {
+        type = t;
+    }
+
+    void setFloor(int f)
+    {
+        floor = f;
+    }
+
+    int getRoomNumber()
+    {
+        return roomNumber;
+    }
+
+    string getType()
+    {
+        return type;
+    }
+
+    int getFloor()
+    {
+        return floor;
+    }
+
+    int getOccupantCount()
+    {
+        return occupantCount;
+    }
+    bool addStudent(Student* s)
+    {
+        int capacity;
+
+        if (type == "Single")
+            capacity = 1;
+        else if (type == "Double")
+            capacity = 2;
+        else
+            capacity = 3;
+
+        if (occupantCount >= capacity)
+        {
+            cout << "Room is Full!\n";
+            return false;
+        }
+
+        occupants[occupantCount] = s;
+        occupantCount++;
+
+        cout << "Room Allocated Successfully!\n";
+        return true;
+    }
+
+    bool removeStudent(string roll)
+    {
+        for (int i = 0; i < occupantCount; i++)
+        {
+            if (occupants[i]->getRollNo() == roll)
+            {
+                for (int j = i; j < occupantCount - 1; j++)
+                    occupants[j] = occupants[j + 1];
+
+                occupants[occupantCount - 1] = NULL;
+                occupantCount--;
+
+                cout << "Room Vacated Successfully!\n";
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void displayRoom()
+    {
+        cout << "\n===========Room Information==============\n";
+        cout << "Room Number : " << roomNumber << endl;
+        cout << "Type        : " << type << endl;
+        cout << "Floor       : " << floor << endl;
+        cout << "Occupants   : " << occupantCount << endl;
+
+        if (occupantCount == 0)
+        {
+            cout << "No Students Allocated\n";
+        }
+        else
+        {
+            cout << "\nStudent List\n";
+
+            for (int i = 0; i < occupantCount; i++)
+            {
+                occupants[i]->display();
+                cout << endl;
+            }
+        }
+    }
+};
+
+class HostelBlock
+{
+private:
+    string blockName;
+    Room rooms[10];
+
+public:
+    void setBlockName(string name)
+    {
+        blockName = name;
+    }
+
+    string getBlockName()
+    {
+        return blockName;
+    }
+
+    void initializeRooms()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            rooms[i].setRoomNumber(101 + i);
+
+            if (i < 3)
+                rooms[i].setType("Single");
+            else if (i < 7)
+                rooms[i].setType("Double");
+            else
+                rooms[i].setType("Triple");
+
+            if (i < 5)
+                rooms[i].setFloor(1);
+            else
+                rooms[i].setFloor(2);
+        }
+    }
+    Room* getRooms()
+    {
+        return rooms;
+    }
+    void displayRooms()
+    {
+        cout << "\n===== Hostel Block : " << blockName << " =====\n";
+
+        for (int i = 0; i < 10; i++)
+        {
+            rooms[i].displayRoom();
+        }
+    }
+};
+
+class HostelManager : public Accommodation, public Reportable
+{
+private:
+    HostelBlock block;
+    Student students[50];
+    int studentCount;
+
+public:
+    HostelManager()
+    {
+        studentCount = 0;
+
+        block.setBlockName("A");
+        block.initializeRooms();
+    }
+
+    void addStudent()
+    {
+        string roll, name;
+        cout << "\nEnter Roll No : ";
+        cin >> roll;
+        cout << "Enter Name : ";
+        cin >> name;
+        students[studentCount].setRollNo(roll);
+        students[studentCount].setName(name);
+        studentCount++;
+
+        cout << "\nStudent Added Successfully.\n";
+    }
+
+    void allocateRoom()
+    {
+        string roll;
+        int roomNo;
+
+        cout << "\nEnter Student Roll No : ";
+        cin >> roll;
+        cout << "Enter Room Number : ";
+        cin >> roomNo;
+
+        Student* ptr = NULL;
+        for (int i = 0; i < studentCount; i++)
+        {
+            if (students[i].getRollNo() == roll)
+            {
+                ptr = &students[i];
+                break;
+            }
+        }
+        if (ptr == NULL)
+        {
+            cout << "Student Not Found.\n";
+            return;
+        }
+
+        Room* rooms =block.getRooms();
+
+        for (int i = 0; i < 10; i++)
+        {
+            if (rooms[i].getRoomNumber() == roomNo)
+            {
+                rooms[i].addStudent(ptr);
+                return;
+            }
+        }
+        cout << "Room Not Found.\n";
+    }
+
+    void vacateRoom()
+    {
+        string roll;
+        cout << "\nEnter Student Roll No : ";
+        cin >> roll;
+        Room* rooms = block.getRooms();
+        for (int i = 0; i < 10; i++)
+        {
+            if (rooms[i].removeStudent(roll))
+                return;
+        }
+        cout << "Student Not Found in Any Room.\n";
+    }
+
+    void generateReport()
+    {
+        cout << "\n========== OCCUPANCY REPORT ==========\n";
+        Room* rooms = block.getRooms();
+        for (int i = 0; i < 10; i++)
+        {
+            cout << "Room "
+                 << rooms[i].getRoomNumber()
+                 << " : "
+                 << rooms[i].getOccupantCount()
+                 << " Student(s)\n";
+        }
+    }
+    void displayRooms()
+    {
+        block.displayRooms();
+    }
+};
+
+int main()
+{
+    HostelManager manager;
+    int choice;
+    do
+    {
+        cout << "\n========== HOSTEL MANAGEMENT ==========\n";
+        cout << "1. Add Student\n";
+        cout << "2. Allocate Room\n";
+        cout << "3. Vacate Room\n";
+        cout << "4. Display All Rooms\n";
+        cout << "5. Occupancy Report\n";
+        cout << "0. Exit\n";
+        cout << "\nEnter Choice: ";
+        cin >> choice;
+        switch(choice)
+        {
+        case 1:
+            manager.addStudent();
+            break;
+
+        case 2:
+            manager.allocateRoom();
+            break;
+
+        case 3:
+            manager.vacateRoom();
+            break;
+
+        case 4:
+            manager.displayRooms();
+            break;
+
+        case 5:
+            manager.generateReport();
+            break;
+
+        case 0:
+            cout << "Program Ended.\n";
+            break;
+
+        default:
+            cout << "Invalid Choice!\n";
+        }
+
+    } while(choice != 0);
+
+    return 0;
+}
